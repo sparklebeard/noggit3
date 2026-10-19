@@ -671,6 +671,8 @@ else()
                           "noggit"
                         )
   set_source_files_properties (media/noggit.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+  # the icon is only copied into the bundle if it is part of the target's sources
+  target_sources (noggit PRIVATE media/noggit.icns)
   set_target_properties ( noggit
                           PROPERTIES
                           MACOSX_BUNDLE_BUNDLE_NAME
