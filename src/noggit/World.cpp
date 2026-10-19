@@ -851,10 +851,14 @@ void World::draw ( math::matrix_4x4 const& model_view
   }
   if (!_mcnk_program)
   {
+    // unit 0 is used by the alphamap, the shader supports up to 31 texture arrays
+    // some drivers (eg: macOS) only have 16 units and fail to link if more samplers are declared
+    int const texture_array_count = std::min(fragment_shader_max_texture_unit - 1, 31);
+
     _mcnk_program.reset
       ( new opengl::program
           { { GL_VERTEX_SHADER,   opengl::shader::src_from_qrc("terrain_vs") }
-          , { GL_FRAGMENT_SHADER, opengl::shader::src_from_qrc("terrain_fs") }
+          , { GL_FRAGMENT_SHADER, opengl::shader::src_from_qrc("terrain_fs", {"TEXTURE_ARRAY_COUNT " + std::to_string(texture_array_count)}) }
           }
       );
 
@@ -862,7 +866,7 @@ void World::draw ( math::matrix_4x4 const& model_view
 
     mcnk_shader.uniform("alphamap", 0);
 
-    for (int i = 0; i < fragment_shader_max_texture_unit-1; ++i)
+    for (int i = 0; i < texture_array_count; ++i)
     {
       mcnk_shader.uniform("texture_arrays[" + std::to_string(i) + "]", i + 1);
     }
