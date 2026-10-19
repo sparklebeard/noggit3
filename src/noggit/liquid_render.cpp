@@ -11,6 +11,18 @@
 #include <algorithm>
 #include <string>
 
+liquid_render::liquid_render()
+  : _use_draw_parameters(gl.has_extension("GL_ARB_shader_draw_parameters"))
+  , program
+    { { GL_VERTEX_SHADER,   _use_draw_parameters
+                            ? opengl::shader::src_from_qrc("liquid_vs", {"use_draw_parameters"})
+                            : opengl::shader::src_from_qrc("liquid_vs")
+      }
+    , { GL_FRAGMENT_SHADER, opengl::shader::src_from_qrc("liquid_fs") }
+    }
+{
+}
+
 
 liquid_layer_ubo_data liquid_render::ubo_data(int liquid_id)
 {

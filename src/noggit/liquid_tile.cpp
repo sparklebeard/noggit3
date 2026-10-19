@@ -78,7 +78,18 @@ void liquid_tile::draw ( math::frustum const& frustum
 
   opengl::scoped::vao_binder const _ (_vao);
 
-  gl.multiDrawElements(GL_TRIANGLES, _indices_count.data(), GL_UNSIGNED_SHORT, _indices_offsets.data(), _indices_count.size());
+  if (render.use_draw_parameters())
+  {
+    gl.multiDrawElements(GL_TRIANGLES, _indices_count.data(), GL_UNSIGNED_SHORT, _indices_offsets.data(), _indices_count.size());
+  }
+  else
+  {
+    for (std::size_t i = 0; i < _indices_count.size(); ++i)
+    {
+      water_shader.uniform("draw_id_fallback", static_cast<int>(i));
+      gl.drawElements(GL_TRIANGLES, _indices_count[i], GL_UNSIGNED_SHORT, opengl::index_buffer_is_already_bound{}, reinterpret_cast<std::intptr_t>(_indices_offsets[i]));
+    }
+  }
 }
 
 liquid_chunk* liquid_tile::getChunk(int x, int z)

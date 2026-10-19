@@ -27,22 +27,26 @@ struct liquid_layer_ubo_data
 class liquid_render
 {
 public:
-  liquid_render() = default;
+  liquid_render();
 
   opengl::program const& shader_program() const
   {
     return program;
   }
 
+  // false when GL_ARB_shader_draw_parameters isn't supported (eg: macOS),
+  // chunks must then be drawn one by one with the draw_id_fallback uniform set
+  bool use_draw_parameters() const { return _use_draw_parameters; }
+
   liquid_layer_ubo_data ubo_data(int liquid_id);
   void bind_arrays();
   int array_count() const { return _texture_arrays.size(); }
 private:
 
-  opengl::program program
-    { { GL_VERTEX_SHADER,   opengl::shader::src_from_qrc("liquid_vs") }
-    , { GL_FRAGMENT_SHADER, opengl::shader::src_from_qrc("liquid_fs") }
-    };
+  // must be declared before program, it's used to build the vertex shader
+  bool _use_draw_parameters;
+
+  opengl::program program;
 
   std::map<int, int> _liquid_id_types;
   std::map<int, math::vector_2d> _float_param_by_liquid_id;
